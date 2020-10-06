@@ -3,7 +3,7 @@ library(leaflet)
 library(mapboxapi)
 library(sf)
 
-token <- "pk.eyJ1Ijoia3dhbGtlcnRjdSIsImEiOiJMRk9JSmRvIn0.l1y2jHZ6IARHM_rA1-X45A"
+token <- "token"
 # Read in the polling place data
 ev_sites <- readr::read_rds("data/tarrant_EV_sites.rds") 
 
