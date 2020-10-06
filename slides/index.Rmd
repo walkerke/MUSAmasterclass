@@ -1,0 +1,33 @@
+---
+title: "Using Mapbox for Spatial Data Science in R"
+subtitle: "Penn MUSA Masterclass 2020"  
+author: "Kyle Walker"
+date: October 9, 2020
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: xaringan-themer.css
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+```{r xaringan-themer, include=FALSE, warning=FALSE}
+library(xaringanthemer)
+
+write_xaringan_theme(title_slide_background_color = "#035004", 
+                     text_color = "#035004", 
+                     header_color = "#035004", 
+                     inverse_background_color = "#035004",
+                     text_font_family = "Gotham Narrow",  
+                     header_font_family = "Helvetica", 
+                     header_font_weight = "bold", 
+                     link_color = "#1a730f")
+```
+
+
