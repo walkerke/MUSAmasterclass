@@ -13,7 +13,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
-This tutorial was presented on October 9, 2030 for the [Master of Urban Spatial Analytics](https://www.design.upenn.edu/musa/about) program at the [University of Pennsylvania's](https://www.upenn.edu/) [Weitzman School of Design](https://www.design.upenn.edu/). 
+This tutorial was presented on October 9, 2020 for the [Master of Urban Spatial Analytics](https://www.design.upenn.edu/musa/about) program at the [University of Pennsylvania's](https://www.upenn.edu/) [Weitzman School of Design](https://www.design.upenn.edu/). 
 
 # Getting started
 
@@ -420,7 +420,9 @@ Mapbox has created a fun tool called [Cartogram](https://apps.mapbox.com/cartogr
 Click the "Saved style!" button at the top of the screen, and you'll be transported to the Mapbox Studio editor with your custom Cartogram style loaded.  There is much you can do here - but for now, click the "Share" button in the upper right of your screen to display the "Share and Develop" options.  
 
 ![](img/share_and_develop.png)
-Copy the "Style URL" and paste it in your R Markdown so you can see it; mine here is `mapbox://styles/upenn-masterclass-demo1/ckfzordv11ha519nz3qw1v7nx`.  After `mapbox://styles/`, you'll see your _username_ and _style ID_.  You may recall the beginning of the workshop when we used the Mapbox Streets style as a template for our R Leaflet maps.  You can use this custom style in much the same way with `addMapboxTiles()`: 
+
+Copy the "Style URL" and paste it in your R Markdown so you can see it; mine here is `mapbox://styles/upenn-masterclass-demo1/ckfzordv11ha519nz3qw1v7nx`.  After `mapbox://styles/`, you'll see your _username_ and _style ID_.  You may recall the beginning of the workshop when we used the Mapbox Streets style as a template for our R Leaflet maps.  You can use this custom style in much the same way with `addMapboxTiles()`:
+
 
 ```{r}
 leaflet() %>%
@@ -431,8 +433,10 @@ leaflet() %>%
           zoom = 14)
 ```
 
+
 Try it out for yourselves!
-<style>
+
+```{css, echo = FALSE}
 
 h1, h2, h3 {
   color: #035004; 
@@ -458,8 +462,4 @@ a {
     background-color: #035004;
     border-color: #035004;
 }
-
-
-</style>
-
-
+```
