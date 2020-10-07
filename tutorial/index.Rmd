@@ -409,10 +409,28 @@ All of this information can be put together to build informative dashboards for 
 
 # Bonus exercise: using a custom Mapbox basemap in R
 
+We've just scratched the surface of what you can do with Mapbox tools in R.  While mapboxapi does not do map generation directly, there are options available for you. For more advanced (and fast!) visualization using Mapbox, I strongly recommend checking out the [mapdeck package](https://github.com/SymbolixAU/mapdeck).  This package is an interface to [Uber's deck.gl](https://deck.gl/) library, which is built on Mapbox tools.  
 
+Another option for visualization is to build your own custom maps using [Mapbox Studio](https://www.mapbox.com/mapbox-studio/), Mapbox's interactive web-based tool for cartographic design.  Studio allows you to customize every aspect of their vector tiles for web mapping, making basemaps that are exactly to your specification. For comprehensive tutorials on how to work with Mapbox Studio, [check out their tutorials](https://docs.mapbox.com/help/tutorials/).  Here, I'll just show you how to make a custom basemap very quickly and use it in your R projects.  
 
+Mapbox has created a fun tool called [Cartogram](https://apps.mapbox.com/cartogram/#13.01/40.7251/-74.0051) that allows you to upload an image of your choice, which will be used to create a custom map style based on that image.  Visit https://apps.mapbox.com/cartogram and upload an image of your choice! I'm using [Penn's athletics logo](https://pennathletics.com/index.aspx), though you can use whatever you'd like.  If you are signed into your Mapbox account (which you should be from earlier in this tutorial), the style will save automatically to your account.  
 
+![](img/penn_cartogram.png)
+Click the "Saved style!" button at the top of the screen, and you'll be transported to the Mapbox Studio editor with your custom Cartogram style loaded.  There is much you can do here - but for now, click the "Share" button in the upper right of your screen to display the "Share and Develop" options.  
 
+![](img/share_and_develop.png)
+Copy the "Style URL" and paste it in your R Markdown so you can see it; mine here is `mapbox://styles/upenn-masterclass-demo1/ckfzordv11ha519nz3qw1v7nx`.  After `mapbox://styles/`, you'll see your _username_ and _style ID_.  You may recall the beginning of the workshop when we used the Mapbox Streets style as a template for our R Leaflet maps.  You can use this custom style in much the same way with `addMapboxTiles()`: 
+
+```{r}
+leaflet() %>%
+  addMapboxTiles(style_id = "ckfzordv11ha519nz3qw1v7nx",
+                 username = "upenn-masterclass-demo1") %>%
+  setView(lng = penn[1],
+          lat = penn[2],
+          zoom = 14)
+```
+
+Try it out for yourselves!
 <style>
 
 h1, h2, h3 {
