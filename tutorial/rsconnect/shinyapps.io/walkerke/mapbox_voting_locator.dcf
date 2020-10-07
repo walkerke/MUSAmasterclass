@@ -5,9 +5,9 @@ account: walkerke
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 2955534
-bundleId: 3709281
+bundleId: 3712929
 url: https://walkerke.shinyapps.io/mapbox_voting_locator/
-when: 1602002201.42097
+when: 1602079863.36026
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: index.html|index.Rmd|img/mb_dashboard.png
+ignoredFiles: app_local.R|index.html|index.Rmd|data/no_cars.rds|img/mb_dashboard.png

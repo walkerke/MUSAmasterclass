@@ -12,6 +12,8 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
+This tutorial was presented on October 9, 2030 for the [Master of Urban Spatial Analytics](https://www.design.upenn.edu/musa/about) program at the [University of Pennsylvania's](https://www.upenn.edu/) [Weitzman School of Design](https://www.design.upenn.edu/). 
+
 # Getting started
 
 ## Installing packages and dependencies
@@ -21,13 +23,6 @@ To get started with mapboxapi, you'll need to first install some packages. mapbo
 ```{r, eval = FALSE}
 install.packages("mapboxapi", dependencies = TRUE)
 ```
-
-To run the _advanced_ examples in the second half of this workshop, you'll also need to install the following packages that don't get picked up as mapboxapi dependencies:
-
-```{r, eval = FALSE}
-install.packages(c("shiny", "fasterize", "tidycensus"))
-```
-
 
 If you've been working with R Spatial packages before, installation should go smoothly.  If you are new to R/R Spatial, you may need to do some configuration prior to successful installation of the package.  mapboxapi depends heavily on the [sf](https://github.com/r-spatial/sf) package for spatial data processing in R.  On Ubuntu, use the following commands in a terminal to install required dependencies: 
 
@@ -45,9 +40,14 @@ sudo apt-get install -y libprotobuf-dev protobuf-compiler libmagick++-dev
 
 Instructions for other Linux distributions can be found on the package websites linked above.  
 
-## Setting up your Mapbox account
+To run the _advanced_ examples in the second half of this workshop, you'll also need to install the following packages that don't get picked up as mapboxapi dependencies:
 
-upenn-mapbox-community
+```{r, eval = FALSE}
+install.packages(c("shiny", "fasterize", "tidycensus", "tidyverse"))
+```
+
+
+## Setting up your Mapbox account
 
 Before we get started using Mapbox services in R, you'll need a valid Mapbox account with an __access token__.  Fortunately, Mapbox has generously provided a coupon code for you to use as workshop participants.  To set up your account, visit https://account.mapbox.com/auth/signup/ to establish an account - all you need to provide is an email address to sign up!  Fill out the form and verify your account through the email Mapbox sends you; you'll be taken directly to your Mapbox account dashboard page.  
 
@@ -290,33 +290,59 @@ Accessibility is now represented in a similar way, but with a clearer view of th
 
 ## Identifying populations who may have difficulty reaching polling places
 
-The previous 
+The previous example illustrated how to model and visualize accessibility in Houston; however, it does not speak directly to _who_ may have difficulties dropping off their ballots.  Households with access to cars will have a much easier time reaching downtown Houston to drop off their ballots, for example, than those who need to rely on other methods of transportation.  In turn, accessibility data can be cross-referenced with other data sources to enhance our understanding of these issues by using _spatial analysis_.  
 
+Our task in this section is to find neighborhoods with limited access to early voting locations in Fort Worth, Texas, and cross-reference this with demographic data from the most recent American Community Survey, the US Census Bureau's annual social and economic survey of US households.  To get started, let's load in some core packages for spatial data analysis.  We'll be using the following R packages:
+
+* [sf](https://r-spatial.github.io/sf/): sf, which stands for _simple features_, has cemented itself in the last couple years as the core package for vector-based spatial data representation and analysis in R.  Spatial data are represented with sf much like regular R data frames, but with a list-column representing the geometry of each row. 
+* [tidyverse](https://www.tidyverse.org/): A collection of popular R packages maintained by [RStudio](https://rstudio.com/) that work together to facilitate data representation, wrangling, and visualization. 
+* [tidycensus](https://walker-data.com/tidycensus/): An R package for downloading and working with data from the US Census Bureau's decennial Census, American Community Survey (aggregate and microdata), and Population Estimates program. I first wrote this package three years ago because I grew tired of the tedious process of downloading Census data, cleaning it, and joining to shapefiles to do spatial analysis.  tidycensus does all this for you internally with the ability to return Census and ACS data as simple features objects ready for mapping and analysis.  
+
+To get started, we'll load the required packages for analysis. We'll also set the option `tigris_use_cache = TRUE` to cache downloaded shapefiles (spatial data) from the Census website; this will store them for future use and guard against occasional website downtime.
 
 ```{r}
 library(tidyverse)
 library(tidycensus)
+options(tigris_use_cache = TRUE)
+```
 
+For this analysis, we'll be using a dataset of [early voting locations for Tarrant County, Texas](https://www.tarrantcounty.com/content/dam/main/elections/2020/1120/locations/1120_EV_Sched.pdf), which represents the areas around Fort Worth and Arlington.  There are 50 such locations around the county, allowing voters to cast their ballots between October 13 and October 30.  This is a helpful alternative for voters who might not want to (or cannot) vot on Election Day on November 3rd.  
+
+We'll read in a dataset of these early voting sites that I've already geocoded and converted to an sf POINT object.  This dataset can be used to analyze which areas are immediately covered by accessible early voting options, and which are not.  We'll measure accessibility using isochrones as above, and consider a 20 minute walk-time around each polling location.  `mb_isochrone()` can accept sf objects as input, and will retain an ID from the input sf object if the column name is specified.  
+
+```{r}
 ev_sites <- read_rds("data/tarrant_EV_sites.rds")
 
 walking_isos <- mb_isochrone(
   ev_sites,
   profile = "walking",
-  time = 20
+  time = 20,
+  id = "name"
 )
 
 ```
 
+These results can be visualized on our Mapbox map:
+
 ```{r}
 mapbox_map %>%
-  addPolygons(data = walking_isos)
+  addPolygons(data = walking_isos,
+              popup = ~id)
 ```
+
+The map represents the reachable area within a 20-minute walk, modeled at an average walking speed for an able-bodied adult (about 5.1 km/hour).  For individuals with disabilities, the elderly, or households without access to a car, getting to these polling sites may prove difficult in areas outside these isochrones.  However, accessibility may be less of an issue in areas where car ownership is widespread.  We can analyze this additional variable with demographic data, also obtained within R.
 
 ### Obtaining demographic data with tidycensus
 
+We'll be using tidycensus to request data from the US Census Bureau API about the percentage of households who do not have access to an automobile.  A full discussion of how to use tidycensus is beyond the scope of today's tutorial, but you'll learn a few things here.  To use tidycensus, you must first [obtain a Census API key, available at this link](https://api.census.gov/data/key_signup.html).  The key will be emailed to you; once you activate it, you can pass it to the `census_api_key()` function to set it (or install it) in your environment.  
+
+We can then request data from the American Community Survey's 2014-2018 5-year dataset with the `get_acs()` function.  The variable we want is the percentage of households without access to a car, designated with the variable code `DP04_0058P` and available in the ACS Data Profile.  [Please see the tidycensus documentation for more information about identifying appropriate variable IDs](https://walker-data.com/tidycensus/articles/basic-usage.html#searching-for-variables-1).  We'll request this data for Tarrant County, TX at the __census tract__ level, which is the smallest available geography available for this information.  The argument `geometry = TRUE` uses the [tigris package](https://github.com/walkerke/tigris) to download spatial data from the Census website and joins it internally to the ACS data you've acquired.
+
+If you don't already have a key (or cannot get one at this time), un-comment the appropriate line below and read in a saved version of the dataset.  
+
 ```{r}
-library(tidycensus)
-options(tigris_use_cache = TRUE)
+# census_api_key("your key goes here", install = TRUE)
+# no_cars <- read_rds("data/no_cars.rds")
 
 no_cars <- get_acs(
   geography = "tract",
@@ -327,6 +353,8 @@ no_cars <- get_acs(
 )
 ```
 
+Let's visualize this information on our Mapbox map:
+
 ```{r}
 driving_pal <- colorNumeric("viridis", no_cars$estimate)
 
@@ -335,18 +363,29 @@ mapbox_map %>%
               fillColor = ~driving_pal(estimate),
               fillOpacity = 0.5,
               stroke = FALSE,
-              smoothFactor = 0.1) %>%
+              smoothFactor = 0.1,
+              label = ~round(estimate, 1)) %>%
   addLegend(values = no_cars$estimate,
             pal = driving_pal,
             title = "% without access<br/>to automobile")
 
 ```
 
+As shown visually in the map, a majority of households in all Tarrant County Census tracts have access to an automobile.  However, there are some Census tracts where the percentage without access exceeds 15 or even 20 percent.  That said, if those tracts are within a reasonable walk of a polling location, accessibility may not be as large of an issue.  We can analyze this topic using _spatial overlay_.  
+
 ### Performing spatial analysis with sf
 
-```{r}
-library(dplyr)
+Spatial overlay is a very common operation when working with spatial data.  It can be used to determine which features in one spatial layer overlap with another spatial layer, or extract data from a layer based on geographic information.  In R, spatial overlay can be integrated directly into tidyverse-style data analysis pipelines using functions in sf.  In our example, we want to determine the areas in Tarrant County with the greatest proportion of households without access to a car _that also_ are beyond a 20 minute walk from an early voting polling site.  
 
+To do this, we use this following steps: 
+
+1. We transform the coordinate reference system of our `no_cars` dataset to 4326, the same CRS used by the isochrones;
+2. We extract only those Census tracts with a percentage of households without cars of 15 percent or above;
+3. We use the `st_difference()` function to "cut out" areas from those Census tracts that overlap the 20-minute walking isochrones.
+
+Once we complete this operation, we can visualize the result on our Mapbox map. 
+
+```{r}
 target_areas <- no_cars %>%
   st_transform(4326) %>%
   filter(estimate >= 15) %>%
@@ -359,9 +398,20 @@ mapbox_map %>%
   addPolygons(data = target_areas)
 ```
 
+As the map illustrates, there are several areas within Tarrant County that are located beyond a 20-minute walk from an early voting location and have proportionally lower access to automobiles.  Notable clusters of neighborhoods that meet this criteria are located in Fort Worth to the south of downtown and on the city's East Side. Granted, this analysis is not definitive, but gives us some insights into potential issues with voting accessibility and how we might resolve them.  
+
 ## Building a polling place locator app with Shiny
 
+All of this information can be put together to build informative dashboards for the public using mapboxapi tools.  The application shown below [and available at this link](https://walkerke.shinyapps.io/mapbox_voting_locator/) uses `mb_geocode()`, `mb_matrix()`, and `mb_directions()` to identify the closest early voting location to a user-specified address in Tarrant County, calculates the driving directions to that location, then visualizes the route along with driving instructions on the map.  The code used to build this app is available in the Masterclass repository; `app_local.R` is the minimal code to get the app working on your computer (assuming a Mapbox access token has been installed), and `app.R` includes additional detailes necessary to deploy the app on the ShinyApps.io hosting service.  
+
 <iframe src="https://walkerke.shinyapps.io/mapbox_voting_locator/" width="600" height="800" frameBorder="0"></iframe>
+
+
+# Bonus exercise: using a custom Mapbox basemap in R
+
+
+
+
 
 <style>
 
