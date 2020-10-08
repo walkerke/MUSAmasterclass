@@ -47,16 +47,17 @@ class: middle, center, inverse
 
 ## Spatial R and the tidyverse
 
-<img src="https://tidyverse.tidyverse.org/logo.png" style="width: 300px"><img src="https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif" style="width: 300px">
+<img src="https://tidyverse.tidyverse.org/logo.png" style="width: 300px"><img src="https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif" style="width: 350px">
 
 ---
 
 ## tigris
 
-* My first R package; first released in 2015 (with help from Bob Rudis)
+* My first R package; first released in 2015
+
 * Automates acquisition and loading of US Census Bureau TIGER/Line shapefiles in R
 
-```{r}
+```{r tigris-1}
 library(tigris)
 options(tigris_use_cache = TRUE)
 
@@ -66,9 +67,7 @@ dallas_tracts <- tracts("TX", "Dallas", cb = TRUE)
 
 ---
 
-## tigris
-
-```{r}
+```{r tigris-2}
 plot(dallas_tracts$geometry)
 ```
 
@@ -80,7 +79,7 @@ plot(dallas_tracts$geometry)
 
 * First released in 2017; loads data from the decennial Census or American Community survey APIs optionally pre-joined with Census shapefiles
 
-```{r, message = TRUE}
+```{r tidycensus-1, message = TRUE}
 library(tidycensus)
 
 broadband <- get_acs(
@@ -93,14 +92,10 @@ broadband <- get_acs(
 ```
 ---
 
-## tidycensus
+```{r tidycensus-2, fig.width=10}
+library(mapview)
 
-```{r, fig.width=6.5}
-library(ggplot2)
-
-ggplot(broadband, aes(fill = estimate)) + 
-  geom_sf() + 
-  scale_fill_viridis_c()
+mapview(broadband, zcol = "estimate")
 ```
 
 
