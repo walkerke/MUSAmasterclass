@@ -1,6 +1,5 @@
 ---
-title: "MUSA Masterclass 2020"
-author: "Kyle Walker"
+title: "Penn MUSA Masterclass 2020"
 output: 
   html_document: 
     toc: true
@@ -13,9 +12,25 @@ output:
 knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
+Presenter: Kyle Walker (@kyle_e_walker)
+
+* Github: https://github.com/walkerke
+* Tutorial repository: https://github.com/walkerke/MUSAmasterclass
+* mapboxapi documentation: https://walker-data.com/mapboxapi/
+
+
 This tutorial was presented on October 9, 2020 for the [Master of Urban Spatial Analytics](https://www.design.upenn.edu/musa/about) program at the [University of Pennsylvania's](https://www.upenn.edu/) [Weitzman School of Design](https://www.design.upenn.edu/). 
 
+
 # Getting started
+
+To run the examples from the workshop yourself, open a terminal then clone the repository to your computer:
+
+```bash
+git clone https://github.com/walkerke/MUSAmasterclass.git 
+```
+
+Open the project in RStudio and navigate to the `tutorial` folder, then open the `index.Rmd` document.  The examples in that document will run correctly if code chunks are set to be evaluated in that directory.  
 
 ## Installing packages and dependencies
 

@@ -30,4 +30,46 @@ write_xaringan_theme(title_slide_background_color = "#035004",
                      link_color = "#1a730f")
 ```
 
+## About me
 
+{info here}
+
+---
+
+## Academic research
+
+{info here}
+
+---
+
+## Open source software
+
+{info here}
+
+---
+
+## tidycensus & tigris
+
+{info here}
+
+---
+
+## The Mapbox platform
+
+{discussion here}
+
+---
+
+## Mapbox and my research
+
+{Mapping immigrant america}
+
+---
+
+## {mapboxapi}
+
+{discussion here of why I wrote the package}
+
+---
+
+On to the tutorial...
