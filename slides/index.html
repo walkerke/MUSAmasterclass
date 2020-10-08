@@ -5,7 +5,6 @@
     <meta charset="utf-8" />
     <meta name="author" content="Kyle Walker" />
     <meta name="date" content="2020-10-09" />
-    <script src="libs/header-attrs/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -24,49 +23,124 @@ class: center, middle, inverse, title-slide
 
 
 
-## About me
+class: middle, center, inverse
 
-{info here}
-
----
-
-## Academic research
-
-{info here}
+## Introduction: research &amp; open source software
 
 ---
 
-## Open source software
+## My academic research before R
 
-{info here}
-
----
-
-## tidycensus &amp; tigris
-
-{info here}
+&lt;img src="img/urban_map.png" style="width: 450px"&gt;&lt;img src="img/boomer_map.png" style="width: 300px"&gt;
 
 ---
 
-## The Mapbox platform
+## Spatial R and the tidyverse
 
-{discussion here}
+&lt;img src="https://tidyverse.tidyverse.org/logo.png" style="width: 300px"&gt;&lt;img src="https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif" style="width: 300px"&gt;
+
+---
+
+## tigris
+
+* My first R package; first released in 2015 (with help from Bob Rudis)
+* Automates acquisition and loading of US Census Bureau TIGER/Line shapefiles in R
+
+
+```r
+library(tigris)
+options(tigris_use_cache = TRUE)
+
+dallas_tracts &lt;- tracts("TX", "Dallas", cb = TRUE)
+```
+
+---
+
+## tigris
+
+
+```r
+plot(dallas_tracts$geometry)
+```
+
+![](index_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+
+
+---
+
+## tidycensus
+
+* First released in 2017; loads data from the decennial Census or American Community survey APIs optionally pre-joined with Census shapefiles
+
+
+```r
+library(tidycensus)
+
+broadband &lt;- get_acs(
+  geography = "tract",
+  variables = "DP02_0152P", 
+  state = "TX",
+  county = "Dallas",
+  geometry = TRUE
+)
+```
+
+```
+## Getting data from the 2014-2018 5-year ACS
+```
+
+```
+## Using the ACS Data Profile
+```
+---
+
+## tidycensus
+
+
+```r
+library(ggplot2)
+
+ggplot(broadband, aes(fill = estimate)) + 
+  geom_sf() + 
+  scale_fill_viridis_c()
+```
+
+![](index_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+
 
 ---
 
 ## Mapbox and my research
 
-{Mapping immigrant america}
+[_Mapping Immigrant America_ (2015, 2020)](http://personal.tcu.edu/kylewalker/immigrant-america/#8.95/33.9529/-118.1402)
+![](img/immigrant_america.png)
+
+---
+
+## The Mapbox platform
+
+As I discovered, there is quite a bit more to Mapbox than just Studio/GL JS...
+
+![](img/mapbox.png)
 
 ---
 
 ## {mapboxapi}
 
-{discussion here of why I wrote the package}
+The {mapboxapi} R package is an effort to: 
+
+* Help R users incorporate Mapbox web services into their maps / sf-based analysis projects
+
+* Combine Mapbox services when appropriate for common use cases
+
+* Use R as a bridge between analysts' data pipelines &amp; visualization projects (with Leaflet, tippecanoe, Mapbox Studio, etc.)
 
 ---
+class: middle, center, inverse
 
-On to the tutorial...
+## Tutorial: using Mapbox APIs in R
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

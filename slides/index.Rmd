@@ -15,12 +15,15 @@ output:
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+options(tigris_use_cache = TRUE, tigris_year = 2018)
+
+knitr::opts_chunk$set(message = FALSE, warning = FALSE)
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
 library(xaringanthemer)
 
-write_xaringan_theme(title_slide_background_color = "#035004", 
+style_xaringan(title_slide_background_color = "#035004", 
                      text_color = "#035004", 
                      header_color = "#035004", 
                      inverse_background_color = "#035004",
@@ -30,46 +33,106 @@ write_xaringan_theme(title_slide_background_color = "#035004",
                      link_color = "#1a730f")
 ```
 
-## About me
+class: middle, center, inverse
 
-{info here}
-
----
-
-## Academic research
-
-{info here}
+## Introduction: research & open source software
 
 ---
 
-## Open source software
+## My academic research before R
 
-{info here}
-
----
-
-## tidycensus & tigris
-
-{info here}
+<img src="img/urban_map.png" style="width: 450px"><img src="img/boomer_map.png" style="width: 300px">
 
 ---
 
-## The Mapbox platform
+## Spatial R and the tidyverse
 
-{discussion here}
+<img src="https://tidyverse.tidyverse.org/logo.png" style="width: 300px"><img src="https://user-images.githubusercontent.com/520851/34887433-ce1d130e-f7c6-11e7-83fc-d60ad4fae6bd.gif" style="width: 300px">
+
+---
+
+## tigris
+
+* My first R package; first released in 2015 (with help from Bob Rudis)
+* Automates acquisition and loading of US Census Bureau TIGER/Line shapefiles in R
+
+```{r}
+library(tigris)
+options(tigris_use_cache = TRUE)
+
+dallas_tracts <- tracts("TX", "Dallas", cb = TRUE)
+
+```
+
+---
+
+## tigris
+
+```{r}
+plot(dallas_tracts$geometry)
+```
+
+
+
+---
+
+## tidycensus
+
+* First released in 2017; loads data from the decennial Census or American Community survey APIs optionally pre-joined with Census shapefiles
+
+```{r, message = TRUE}
+library(tidycensus)
+
+broadband <- get_acs(
+  geography = "tract",
+  variables = "DP02_0152P", 
+  state = "TX",
+  county = "Dallas",
+  geometry = TRUE
+)
+```
+---
+
+## tidycensus
+
+```{r, fig.width=6.5}
+library(ggplot2)
+
+ggplot(broadband, aes(fill = estimate)) + 
+  geom_sf() + 
+  scale_fill_viridis_c()
+```
+
+
 
 ---
 
 ## Mapbox and my research
 
-{Mapping immigrant america}
+[_Mapping Immigrant America_ (2015, 2020)](http://personal.tcu.edu/kylewalker/immigrant-america/#8.95/33.9529/-118.1402)
+![](img/immigrant_america.png)
+
+---
+
+## The Mapbox platform
+
+As I discovered, there is quite a bit more to Mapbox than just Studio/GL JS...
+
+![](img/mapbox.png)
 
 ---
 
 ## {mapboxapi}
 
-{discussion here of why I wrote the package}
+The {mapboxapi} R package is an effort to: 
+
+* Help R users incorporate Mapbox web services into their maps / sf-based analysis projects
+
+* Combine Mapbox services when appropriate for common use cases
+
+* Use R as a bridge between analysts' data pipelines & visualization projects (with Leaflet, tippecanoe, Mapbox Studio, etc.)
 
 ---
+class: middle, center, inverse
 
-On to the tutorial...
+## Tutorial: using Mapbox APIs in R
