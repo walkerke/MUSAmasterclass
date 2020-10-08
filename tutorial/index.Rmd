@@ -32,6 +32,8 @@ git clone https://github.com/walkerke/MUSAmasterclass.git
 
 Open the project in RStudio and navigate to the `tutorial` folder, then open the `index.Rmd` document.  The examples in that document will run correctly if code chunks are set to be evaluated in that directory.  
 
+Alternatively, if you are unfamiliar with git, click the "Code" drop-down button in the upper right corner of this tutorial, and choose "Download Rmd."  This will download this .Rmd file to your computer.  Put the .Rmd file in a directory of your choice.  Next, download the data for this workshop from https://walker-data.com/MUSAmasterclass/tutorial/data.zip.  Unzip the folder in the same directory as your downloaded .Rmd file. 
+
 ## Installing packages and dependencies
 
 To get started with mapboxapi, you'll need to first install some packages. mapboxapi was just released to CRAN this week, so we can install with `install.packages()`:
@@ -246,13 +248,13 @@ The tools we've learned how to use with mapboxapi can be used to analyze relativ
 
 We can visualize this situation in Harris County with _layered isochrones_.  We already used this technique to show multiple drive times around the University of Pennsylvania earlier in this tutorial.  In this case, we will use `mb_isochrone()` to generate dozens of isochrones, then visualize them simultaneously to illustrate an accessibility gradient in the region.  
 
-We'll first generate the isochrones using a vector of times, 1 through 45 at 1-minute intervals.  
+We'll first generate the isochrones using a vector of times, 1 through 45 at 1-minute intervals, around NRG Arena (the ballot drop-off site).   
 
 ```{r houston-isochrones}
 library(mapboxapi)
 
 isos <- mb_isochrone(
-  location = "201 Caroline St, Houston TX 77002",
+  location = "1 NRG Pkwy, Houston, TX 77054",
   profile = "driving",
   time = 1:45
 )
@@ -272,7 +274,7 @@ mapbox_map %>%
               fillOpacity = 0.1) %>%
   addLegend(values = isos$time,
             pal = pal,
-            title = "Drive-time to Harris<br/>County Clerk")
+            title = "Drive-time to NRG Arena")
 
 ```
 
@@ -298,16 +300,16 @@ iso_surface <- fasterize(isos_proj, template, field = "time", fun = "min")
 mapbox_map %>%
   addRasterImage(iso_surface, colors = pal, opacity = 0.5) %>%
   addLegend(values = isos$time, pal = pal,
-            title = "Drive-time to Harris<br/>County Clerk")
+            title = "Drive-time to NRG Arena")
 
 ```
 
-Accessibility is now represented in a similar way, but with a clearer view of the basemap around downtown Houston.  
+Accessibility is now represented in a similar way, but with a clearer view of the basemap around NRG Arena.  
 
 
 ## Identifying populations who may have difficulty reaching polling places
 
-The previous example illustrated how to model and visualize accessibility in Houston; however, it does not speak directly to _who_ may have difficulties dropping off their ballots.  Households with access to cars will have a much easier time reaching downtown Houston to drop off their ballots, for example, than those who need to rely on other methods of transportation.  In turn, accessibility data can be cross-referenced with other data sources to enhance our understanding of these issues by using _spatial analysis_.  
+The previous example illustrated how to model and visualize accessibility in Houston; however, it does not speak directly to _who_ may have difficulties dropping off their ballots.  Households with access to cars will have a much easier time reaching downtown Houston to drop off their ballots, for example, than those who need to rely on other methods of transportation.  It also does not integrate other spatial data showing the boundaries of Harris County.  In turn, a clearer analysis would cross-reference accessibility data with other data sources using _spatial analysis_.  Fortunately, all of this can be completed within R.  
 
 Our task in this section is to find neighborhoods with limited access to early voting locations in Fort Worth, Texas, and cross-reference this with demographic data from the most recent American Community Survey, the US Census Bureau's annual social and economic survey of US households.  To get started, let's load in some core packages for spatial data analysis.  We'll be using the following R packages:
 
