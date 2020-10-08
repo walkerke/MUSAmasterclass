@@ -36,7 +36,7 @@ Open the project in RStudio and navigate to the `tutorial` folder, then open the
 
 To get started with mapboxapi, you'll need to first install some packages. mapboxapi was just released to CRAN this week, so we can install with `install.packages()`:
 
-```{r, eval = FALSE}
+```{r install-mapboxapi, eval = FALSE}
 install.packages("mapboxapi", dependencies = TRUE)
 ```
 
@@ -56,10 +56,11 @@ sudo apt-get install -y libprotobuf-dev protobuf-compiler libmagick++-dev
 
 Instructions for other Linux distributions can be found on the package websites linked above.  
 
-To run the _advanced_ examples in the second half of this workshop, you'll also need to install the following packages that don't get picked up as mapboxapi dependencies:
+To run all of the examples in this workshop, you'll also need to install the following packages that don't get picked up as mapboxapi dependencies:
 
-```{r, eval = FALSE}
-install.packages(c("shiny", "fasterize", "tidycensus", "tidyverse"))
+```{r install-packages, eval = FALSE}
+install.packages(c("shiny", "fasterize", "tidycensus", 
+                   "tidyverse", "viridisLite"))
 ```
 
 
@@ -74,7 +75,7 @@ Note the "default public token" that appears on your screen - you'll come back t
 
 All features in mapboxapi require a valid Mapbox access token to work.  Now that you have yours in hand, you can set yours up!  Load the mapboxapi package and install your token as follows:  
 
-```{r, eval = FALSE}
+```{r install-token, eval = FALSE}
 my_token <- "YOUR TOKEN GOES HERE"
 
 library(mapboxapi)
@@ -103,7 +104,7 @@ One of the most popular R packages for interactive data visualization in R is th
 
 Let's load the leaflet and mapboxapi libraries and set up an interactive map: 
 
-```{r}
+```{r mapbox-map}
 library(leaflet)
 library(mapboxapi)
 
@@ -124,7 +125,7 @@ Both functions default to using the `mapbox.places` API endpoint, which is to be
 
 Let's use `mb_geocode()` to identify the coordinates representing the University of Pennsylvania (specifically here, the university bookstore).
 
-```{r}
+```{r geocode-penn}
 penn <- mb_geocode("3601 Walnut St, Philadelphia, PA 19104")
 
 penn
@@ -133,7 +134,7 @@ penn
 By default, `mb_geocode()` returns a length-2 vector representing the longitude and latitude coordinates of the geocoded location.  The function can also return an sf POINT object or an R list representing the full API response, if requested.  Using the returned coordinates, we can focus our Leaflet Mapbox map with the `setView()` function:
 
 
-```{r}
+```{r view-penn}
 mapbox_map %>%
   setView(lng = penn[1],
           lat = penn[2],
@@ -163,7 +164,7 @@ Creating and visualizing isochrones is straightforward with the `mb_isochrone()`
 
 Let's try drawing isochrones around the Penn campus.  `mb_isochrone()` accepts an an input a coordinate pair, a location description as a character string, or an sf object.  We can use our `penn` object here to initialize the isochrones around campus.  
 
-```{r}
+```{r penn-isochrones}
 penn_isochrones <- mb_isochrone(penn,
                                 profile = "driving",
                                 time = c(4, 8, 12))
@@ -175,8 +176,8 @@ An sf object is returned with a `time` column representing the travel-time aroun
 
 Using Leaflet's `addPolygons()` function, we can add the isochrones to our map. 
 
-```{r}
-colors = viridisLite::viridis(3)
+```{r map-isochrones}
+colors <- viridisLite::viridis(3)
 
 mapbox_map %>%
   addPolygons(data = penn_isochrones,
@@ -197,7 +198,7 @@ The filled areas represent the estimated reachable area around Penn without traf
 
 mapboxapi can also be used to quickly represent and visualize routes between two locations, or alternatively along multiple locations.  The Mapbox Directions API endpoint has _a lot_ of options, which I've done my best to implement for R users.  At its simplest, however, `mb_directions()` just requires an origin and a destination: 
 
-```{r}
+```{r directions}
 route <- mb_directions(origin = penn,
                        destination = "Philadelphia Museum of Art, Philadelphia PA",
                        profile = "cycling")
@@ -214,7 +215,7 @@ mapbox_map %>%
 
 The optional argument `steps = TRUE` will break the route object into separate rows for each leg of the trip, and return travel instructions in a number of different languages (English is the default). 
 
-```{r}
+```{r instructions}
 route_dir <- mb_directions(origin = penn,
                            destination = "Philadelphia Museum of Art, Philadelphia PA",
                            profile = "cycling",
@@ -247,7 +248,7 @@ We can visualize this situation in Harris County with _layered isochrones_.  We 
 
 We'll first generate the isochrones using a vector of times, 1 through 45 at 1-minute intervals.  
 
-```{r}
+```{r houston-isochrones}
 library(mapboxapi)
 
 isos <- mb_isochrone(
@@ -260,7 +261,7 @@ isos <- mb_isochrone(
 
 Next, we can visualize our overlapping isochrones.  We'll use the viridis color palette as we did previously in the tutorial, and generate a color palette derived from the `time` column in our dataset.  Once specified, we can add these polygons to our Mapbox basemap with a mostly-transparent fill opacity.  
 
-```{r}
+```{r layered-isochrones}
 
 pal <- colorNumeric("viridis", isos$time, na.color = "transparent")
 
@@ -284,7 +285,7 @@ _Accessibility surfaces_ are commonly used in geographic information systems app
 
 To generate the accessibility surface raster, we will need to apply a _coordinate system transformation_ to "project" our data to two-dimensional coordinates.  This will allow us to specify the raster's resolution in meters.  We generate a 100m resolution raster, and use the `fasterize()` function to allocate the minimum overlapping value from our isochrones to each grid cell.  The result can then be mapped with Leaflet's `addRasterImage()` function.  
 
-```{r}
+```{r make-surface}
 library(fasterize)
 library(sf)
 
@@ -316,7 +317,7 @@ Our task in this section is to find neighborhoods with limited access to early v
 
 To get started, we'll load the required packages for analysis. We'll also set the option `tigris_use_cache = TRUE` to cache downloaded shapefiles (spatial data) from the Census website; this will store them for future use and guard against occasional website downtime.
 
-```{r}
+```{r load-tidycensus}
 library(tidyverse)
 library(tidycensus)
 options(tigris_use_cache = TRUE)
@@ -326,7 +327,7 @@ For this analysis, we'll be using a dataset of [early voting locations for Tarra
 
 We'll read in a dataset of these early voting sites that I've already geocoded and converted to an sf POINT object.  This dataset can be used to analyze which areas are immediately covered by accessible early voting options, and which are not.  We'll measure accessibility using isochrones as above, and consider a 20 minute walk-time around each polling location.  `mb_isochrone()` can accept sf objects as input, and will retain an ID from the input sf object if the column name is specified.  
 
-```{r}
+```{r site-isochrones}
 ev_sites <- read_rds("data/tarrant_EV_sites.rds")
 
 walking_isos <- mb_isochrone(
@@ -340,7 +341,7 @@ walking_isos <- mb_isochrone(
 
 These results can be visualized on our Mapbox map:
 
-```{r}
+```{r map-site-isochrones}
 mapbox_map %>%
   addPolygons(data = walking_isos,
               popup = ~id)
@@ -356,7 +357,7 @@ We can then request data from the American Community Survey's 2014-2018 5-year d
 
 If you don't already have a key (or cannot get one at this time), un-comment the appropriate line below and read in a saved version of the dataset.  
 
-```{r}
+```{r get-demographics}
 # census_api_key("your key goes here", install = TRUE)
 # no_cars <- read_rds("data/no_cars.rds")
 
@@ -371,7 +372,7 @@ no_cars <- get_acs(
 
 Let's visualize this information on our Mapbox map:
 
-```{r}
+```{r view-demographics}
 driving_pal <- colorNumeric("viridis", no_cars$estimate)
 
 mapbox_map %>%
@@ -401,7 +402,7 @@ To do this, we use this following steps:
 
 Once we complete this operation, we can visualize the result on our Mapbox map. 
 
-```{r}
+```{r spatial-overlay}
 target_areas <- no_cars %>%
   st_transform(4326) %>%
   filter(estimate >= 15) %>%
@@ -418,7 +419,9 @@ As the map illustrates, there are several areas within Tarrant County that are l
 
 ## Building a polling place locator app with Shiny
 
-All of this information can be put together to build informative dashboards for the public using mapboxapi tools.  The application shown below [and available at this link](https://walkerke.shinyapps.io/mapbox_voting_locator/) uses `mb_geocode()`, `mb_matrix()`, and `mb_directions()` to identify the closest early voting location to a user-specified address in Tarrant County, calculates the driving directions to that location, then visualizes the route along with driving instructions on the map.  The code used to build this app is available in the Masterclass repository; `app_local.R` is the minimal code to get the app working on your computer (assuming a Mapbox access token has been installed), and `app.R` includes additional detailes necessary to deploy the app on the ShinyApps.io hosting service.  
+All of this information can be put together to build informative dashboards for the public using mapboxapi tools.  The application shown below [and available at this link](https://walkerke.shinyapps.io/mapbox_voting_locator/) uses `mb_geocode()`, `mb_matrix()`, and `mb_directions()` to identify the closest early voting location to a user-specified address in Tarrant County, calculates the driving directions to that location, then visualizes the route along with driving instructions on the map.  The code used to build this app is available in the Masterclass repository; `app_local.R` is the minimal code to get the app working on your computer (assuming a Mapbox access token has been installed), and `app.R` includes additional details necessary to deploy the app on the ShinyApps.io hosting service.  
+
+We'll take a look right now at the Shiny app code; you can also view a live version of the app embedded below!
 
 <iframe src="https://walkerke.shinyapps.io/mapbox_voting_locator/" width="600" height="800" frameBorder="0"></iframe>
 
@@ -439,7 +442,7 @@ Click the "Saved style!" button at the top of the screen, and you'll be transpor
 Copy the "Style URL" and paste it in your R Markdown so you can see it; mine here is `mapbox://styles/upenn-masterclass-demo1/ckfzordv11ha519nz3qw1v7nx`.  After `mapbox://styles/`, you'll see your _username_ and _style ID_.  You may recall the beginning of the workshop when we used the Mapbox Streets style as a template for our R Leaflet maps.  You can use this custom style in much the same way with `addMapboxTiles()`:
 
 
-```{r}
+```{r show-cartogram}
 leaflet() %>%
   addMapboxTiles(style_id = "ckfzordv11ha519nz3qw1v7nx",
                  username = "upenn-masterclass-demo1") %>%
@@ -448,8 +451,7 @@ leaflet() %>%
           zoom = 14)
 ```
 
-
-Try it out for yourselves!
+Thanks for participating today!  If you have more questions about mapboxapi or any of my other packages, feel free to get in touch.  Also, be sure to share anything you've created based on what you've learned today on Twitter with the #rstats and #MusaMasterClass hashtags.  
 
 ```{css, echo = FALSE}
 

@@ -35,6 +35,7 @@ server <- function(input, output) {
   })
   
   # Find the closest polling location with mb_matrix()
+  # when the action button is clicked
   closest_location <- eventReactive(input$action, {
     
     input_sf <- mb_geocode(input$address_text, output = "sf") 
@@ -56,6 +57,9 @@ server <- function(input, output) {
     
   })
   
+  # Once the closest location is determined,
+  # calculate a driving route to that location and 
+  # fly to the route linestring on the map
   observeEvent(closest_location(), {
     
     route <- mb_directions(
@@ -81,7 +85,8 @@ server <- function(input, output) {
       flyTo(lng = flyto_coords[1],
             lat = flyto_coords[2],
             zoom = 14)
-
+    
+    # Print out driving instructions in the sidebar
     output$instructions <- renderUI({
       HTML(paste0(
         paste("&bull;", route$instruction, sep = ""),
