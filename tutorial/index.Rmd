@@ -61,8 +61,7 @@ Instructions for other Linux distributions can be found on the package websites 
 To run all of the examples in this workshop, you'll also need to install the following packages that don't get picked up as mapboxapi dependencies:
 
 ```{r install-packages, eval = FALSE}
-install.packages(c("shiny", "fasterize", "tidycensus", 
-                   "tidyverse", "viridisLite"))
+install.packages(c("shiny", "fasterize", "tidycensus", "tidyverse"))
 ```
 
 
@@ -309,7 +308,7 @@ Accessibility is now represented in a similar way, but with a clearer view of th
 
 ## Identifying populations who may have difficulty reaching polling places
 
-The previous example illustrated how to model and visualize accessibility in Houston; however, it does not speak directly to _who_ may have difficulties dropping off their ballots.  Households with access to cars will have a much easier time reaching downtown Houston to drop off their ballots, for example, than those who need to rely on other methods of transportation.  It also does not integrate other spatial data showing the boundaries of Harris County.  In turn, a clearer analysis would cross-reference accessibility data with other data sources using _spatial analysis_.  Fortunately, all of this can be completed within R.  
+The previous example illustrated how to model and visualize accessibility in Houston; however, it does not speak directly to _who_ may have difficulties dropping off their ballots.  Households with access to cars will have a much easier time reaching NRG Arena to drop off their ballots, for example, than those who need to rely on other methods of transportation.  It also does not integrate other spatial data showing the boundaries of Harris County.  In turn, a clearer analysis would cross-reference accessibility data with other data sources using _spatial analysis_.  Fortunately, all of this can be completed within R!  
 
 Our task in this section is to find neighborhoods with limited access to early voting locations in Fort Worth, Texas, and cross-reference this with demographic data from the most recent American Community Survey, the US Census Bureau's annual social and economic survey of US households.  To get started, let's load in some core packages for spatial data analysis.  We'll be using the following R packages:
 
