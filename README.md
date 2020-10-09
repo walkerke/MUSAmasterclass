@@ -4,6 +4,9 @@ __Using Mapbox for Spatial Data Science in R__
 
 This repository contains materials for the 2020 Masterclass workshop presented by Kyle Walker for the University of Pennsylvania's Masters of Urban Spatial Analytics program.  
 
+* Tutorial document: http://walker-data.com/MUSAmasterclass/tutorial/
+* Introductory slides: http://walker-data.com/MUSAmasterclass/slides/
+
 To run the examples from the workshop yourself, clone the repository to your computer:
 
 ```bash
